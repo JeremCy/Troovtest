@@ -3,9 +3,10 @@ const ROLES = db.ROLES;
 const User = db.user;
 
 checkDuplicateUsernameOrEmail = (req, res, next) => {
+
     User.findOne({
         username: req.body.username
-    }.exec((err, user) => {
+    }).exec((err, user) => {
         if (err) {
             return res.status(500).json({
                 error: err
@@ -16,6 +17,7 @@ checkDuplicateUsernameOrEmail = (req, res, next) => {
                 error: 'Username already exists'
             });
         }
+
         User.findOne({
             email: req.body.email
         }).exec((err, user) => {
@@ -31,8 +33,9 @@ checkDuplicateUsernameOrEmail = (req, res, next) => {
             }
             next();
         });
-    }));
+    });
 };
+
 checkRolesExisted = (req, res, next) => {
     if(req.body.roles){
         for(let i = 0; i < req.body.roles.length; i++){

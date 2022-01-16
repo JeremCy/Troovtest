@@ -15,7 +15,7 @@ exports.signup = (req, res) => {
 
     user.save((err, user) => {
         if (err) {
-            res.status(500).json({ message: err });
+            res.status(500).send({ message: err });
             return;
         }
 
@@ -26,17 +26,17 @@ exports.signup = (req, res) => {
                 },
                 (err, roles) => {
                     if (err) {
-                        res.status(500).json({ message: err });
+                        res.status(500).send({ message: err });
                         return;
                     }
                     
                     user.roles = roles.map(role => role._id);
                     user.save(err => {
                         if (err) {
-                            res.status(500).json({ message: err });
+                            res.status(500).send({ message: err });
                             return;
                         }
-                    res.json({message:"user registered successfully"});
+                    res.send({message:"user registered successfully"});
                 });
             });
         }
@@ -50,28 +50,28 @@ exports.signin = (req, res) =>{
     .populate("roles","-__v")
     .exec((err, user) => {
         if(err){
-            res.status(500).json({ message: err});
+            res.status(500).send({ message: err});
             return;
         }
         if(!user){
-            res.status(404).json({ message:"User not found"});
+            res.status(404).send({ message:"User not found"});
         }
         var passwordIsValid = bcrypt.compareSync(
             req.body.password,
             user.password
         );
         if(!passwordIsValid){
-            return res.status(401).json({
+            return res.status(401).send({
                 accessToken: null,
                 message: "Invalid password"
             });
         }
-        var token = jwt.sign({id: user.id}, {secret: user.secret}, {expiresIn: 86400});
+        var token = jwt.sign({id: user.id}, config.secret, {expiresIn: 86400});
         var authorities = [];
         for(let i = 0; i < user.roles.length; i++){
             authorities.push("ROLE_"+user.roles[i].name.toUpperCase());
         }
-        res.status(200).json({ 
+        res.status(200).send({ 
             id: user._id,
             username: user.username,
             email: user.email,

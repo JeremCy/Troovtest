@@ -9,9 +9,10 @@ module.exports = function (app){
         );
         next();
     });
-    app.get('object/all',controller.showAll);
-    app.post('object/create',controller.create);
-    app.put('object/update/:id',controller.update);
-    app.delete('object/delete/:id',controller.delete);
-    app.get('object/:id',controller.show);
+
+    app.get("/object/all",controller.showAll);
+    app.post("/object/create",controller.create);
+    app.put("/object/update/:id",controller.update);
+    app.delete("/object/delete/:id",controller.delete);
+    app.get("/object/:id",controller.show);
 }
