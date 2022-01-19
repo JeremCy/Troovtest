@@ -5,7 +5,9 @@ const Objects = mongoose.model(
     new mongoose.Schema({
         title: String,
         description: String,
-        createdAt: {type: Date, default:Date.now},
+        createdAt: { type: Date, default: Date.now },
+        lost: Boolean,
+        type: String
     })
 );
 

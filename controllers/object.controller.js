@@ -27,6 +27,9 @@ exports.create = (req, res) => {
     var object = new Object({
         title: req.body.title,
         description: req.body.description,
+        lost: req.body.lost,
+        type: req.body.type
+        
     })
     object.save(function (err, object) {
         if (err) return res.status(500).json({ message: err.message });
