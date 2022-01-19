@@ -20,4 +20,5 @@ module.exports = function(app) {
   );
 
   app.post("/auth/signin", controller.signin);
+  app.get("/auth/user",controller.getUser);
 };

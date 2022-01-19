@@ -29,55 +29,68 @@ exports.signup = (req, res) => {
                         res.status(500).send({ message: err });
                         return;
                     }
-                    
+
                     user.roles = roles.map(role => role._id);
                     user.save(err => {
                         if (err) {
                             res.status(500).send({ message: err });
                             return;
                         }
-                    res.send({message:"user registered successfully"});
+                        res.send({ message: "user registered successfully" });
+                    });
                 });
-            });
         }
     });
 };
 
-exports.signin = (req, res) =>{
+exports.signin = (req, res) => {
     User.findOne({
         username: req.body.username
     })
-    .populate("roles","-__v")
-    .exec((err, user) => {
-        if(err){
-            res.status(500).send({ message: err});
-            return;
-        }
-        if(!user){
-            res.status(404).send({ message:"User not found"});
-        }
-        var passwordIsValid = bcrypt.compareSync(
-            req.body.password,
-            user.password
-        );
-        if(!passwordIsValid){
-            return res.status(401).send({
-                accessToken: null,
-                message: "Invalid password"
+        .populate("roles", "-__v")
+        .exec((err, user) => {
+            if (err) {
+                res.status(500).send({ message: err });
+                return;
+            }
+            if (!user) {
+               return res.status(404).send({ message: "User not found" });
+            }
+            var passwordIsValid = bcrypt.compareSync(
+                req.body.password,
+                user.password
+            );
+            if (!passwordIsValid) {
+                return res.status(401).send({
+                    accessToken: null,
+                    message: "Invalid password"
+                });
+                console.log(user)
+            }
+            var token = jwt.sign({ id: user.id }, config.secret,
+                {
+                    expiresIn: 86400
+                });
+            var authorities = [];
+            for (let i = 0; i < user.roles.length; i++) {
+                authorities.push("ROLE_" + user.roles[i].name.toUpperCase());
+            }
+            res.status(200).send({
+                id: user._id,
+                username: user.username,
+                email: user.email,
+                roles: authorities,
+                accessToken: token
             });
-        }
-        var token = jwt.sign({id: user.id}, config.secret, {expiresIn: 86400});
-        var authorities = [];
-        for(let i = 0; i < user.roles.length; i++){
-            authorities.push("ROLE_"+user.roles[i].name.toUpperCase());
-        }
-        res.status(200).send({ 
-            id: user._id,
-            username: user.username,
-            email: user.email,
-            roles: authorities,
-            accessToken: token
-        });
 
-    });
+        });
 };
+exports.getUser = (req, res, next) => { // this function will send user data to the front-end as I said above authFetch on the user object in nuxt.config.js will send a request and it will execute
+    res.status(200).json({
+      user: {
+        id: req._id,
+        fullname: req.fullname,
+        email: req.email,
+      },
+    });
+  };
